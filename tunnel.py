@@ -1,7 +1,7 @@
 #!/bin/sh -
 "exec" "python" "-O" "$0" "$@"
 
-__doc__ = """Tiny HTTP Proxy.
+__doc__ = """tunnel.
 
 This module implements GET, HEAD, POST, PUT and DELETE methods
 on BaseHTTPServer, and behaves as an HTTP proxy.  The CONNECT
@@ -11,7 +11,7 @@ tested yet.
 Any help will be greatly appreciated.		SUZUKI Hisao
 """
 
-__version__ = "0.2.1"
+__version__ = "0.0.1"
 
 import BaseHTTPServer, select, socket, SocketServer, urlparse
 
@@ -19,7 +19,7 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     __base = BaseHTTPServer.BaseHTTPRequestHandler
     __base_handle = __base.handle
 
-    server_version = "TinyHTTPProxy/" + __version__
+    server_version = "tunnel/" + __version__
     rbufsize = 0                        # self.rfile Be unbuffered
 
     def handle(self):
