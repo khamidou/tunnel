@@ -23,9 +23,18 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
     rbufsize = 0                        # self.rfile Be unbuffered
 
     def do_GET(self):
-            headers = {"Proxy-Connection" : "", }
+            headers = {"Proxy-Connection" : "",
+			"User-Agent" : "Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11",
+			"Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+			"Accept-Language": "fr,fr-fr;q=0.8,en-us;q=0.5,en;q=0.3",
+			"Accept-Encoding": "gzip,deflate",
+			"Accept-Charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+			"Keep-Alive": "300",
+			"Proxy-Connection": "keep-alive",
+
+	    }
             req = urllib2.Request(self.path, headers=headers) 
-            
+            print self.headers
             try:
             	data = urllib2.urlopen(req)
                 self.send_response(200)
