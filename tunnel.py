@@ -26,8 +26,15 @@ class ProxyHandler (BaseHTTPServer.BaseHTTPRequestHandler):
             headers = {"Proxy-Connection" : "", }
             req = urllib2.Request(self.path, headers=headers) 
             
-            data = urllib2.urlopen(req)
-            s.wfile.write(data.read())
+            try:
+            	data = urllib2.urlopen(req)
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(data.read())
+
+            except IOError:
+                self.send_response(500)
+                self.end_headers()
             
     do_HEAD = do_GET
     do_POST = do_GET
