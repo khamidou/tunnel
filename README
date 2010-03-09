@@ -1,1 +1,3 @@
-tunnel is a personal proxy - that is, a tool that will filter costly distractions of our modern internet world.
+This is tunnel.
+
+To run it, just type "./tunnel"
