@@ -1,3 +1,10 @@
-This is tunnel.
+This is tunnel, a personal proxy program which lets you monitor how much time you
+effectively spend on various websites.
 
 To run it, just type "./tunnel"
+
+How does it compute the time spent ?
+
+To compute how much time you have spent on a website, tunnel uses a simple 
+heuristic : it considers that you're actively surfing a website if you're
+clicking on link on the same domain every five minutes
