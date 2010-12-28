@@ -3,11 +3,13 @@
 import BaseHTTPServer
 import urllib2
 import datetime
+from threading import Timer
 from urlparse import urlparse
 
 base_url = r"http://0.0.0.0:8000/"
-start_time = datetime.datetime.now()
 sites_dict = {}
+last_domain = ""
+last_request = datetime.datetime.now()
 
 class Domain(object):
 	def __init__(self, name):
@@ -15,23 +17,32 @@ class Domain(object):
 		self.time_spent = datetime.timedelta()
 		self.last_access = datetime.datetime.now()
 	
+	def __str__(self):
+		return "%s : %d" % (self.name, self.time_spent.seconds)
+	
 
 class TunnelHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 	def do_GET(self):
+		global last_domain
+		global last_request
+
     		url = urlparse(self.path)
 		if url.netloc != "":
 		    	domain = url.netloc
-			if not sites_dict.has_key(domain):
-				sites_dict[domain] = Domain(domain)
+
+			if last_domain != "":
+				# Update the domain stats accordingly
+				if not sites_dict.has_key(last_domain):
+					sites_dict[last_domain] = Domain(last_domain)
 			
-			# Increase the timedelta in the dict by
-			# the time spent between the last request
-			# and now
-			if self.last_request == None:
-				self.last_request = datetime.datetime.now()
-		
-			sites_dict[domain].time_spent += datetime.datetime.now() - self.last_request
-			self.last_request = datetime.datetime.now()
+				# Increase the timedelta in the dict by
+				# the time spent between the last request
+				# and now
+				sites_dict[last_domain].time_spent += datetime.datetime.now() - last_request
+
+			last_request = datetime.datetime.now()
+			last_domain = domain
+
 
 	        try:
         	    fd = urllib2.urlopen(self.path)
@@ -39,21 +50,21 @@ class TunnelHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         	    self.wfile.write("400 : The URL " + self.path + " isn't reachable")
 	            return
 
-		print_time_spent(sites_dict)
         	self.wfile.write(fd.read())
 
-	def __init__(self, request, client_address, server):
-		self.last_request = None
-		BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, request, client_address, server)
-
-def print_time_spent(d):
-	print ""
+def write_log(d):
+	fd = open("tunnel.log", "w+")
 	for e in d:
-		print "%s : spent %d seconds" % (d[e].name, d[e].time_spent.seconds)
+		fd.write(d[e])
+
+	# Schedule the function for the next five minutes.
+	Timer(5, write_log, args=[d])
+	fd.close()
 
 if __name__ == "__main__":
     server_address = ('', 8000)
     httpd = BaseHTTPServer.HTTPServer(server_address, TunnelHandler)
     print "tunnel proxy running on http://localhost:8000"
+    write_log(sites_dict)
     httpd.serve_forever()
 
